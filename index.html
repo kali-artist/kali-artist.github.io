@@ -1,29 +1,294 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贪吃蛇游戏</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>打工充能站 · MBTI能量补给</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔋</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <h1>贪吃蛇游戏</h1>
-        <div class="game-info">
-            <div class="score">得分: <span id="score">0</span></div>
-            <div class="high-score">最高分: <span id="high-score">0</span></div>
-        </div>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="controls">
-            <button id="startBtn">开始游戏</button>
-            <button id="pauseBtn">暂停</button>
-            <button id="resetBtn">重置</button>
-        </div>
-        <div class="instructions">
-            <p>使用方向键或 WASD 控制蛇的移动</p>
-            <p>吃到食物得分，碰到墙壁或自己游戏结束</p>
-        </div>
+  <div id="app">
+    <!-- ===== 引导设置页 ===== -->
+    <div class="page setup-page" id="page-setup">
+      <div class="setup-hero">
+        <span class="hero-emoji">🔋</span>
+        <h1>打工充能站</h1>
+        <p class="subtitle">MBTI 专属 · 上班能量补充器<br>让打工的日子，有点意思</p>
+        <span class="pun-badge">⚡ 充能 = 充能，不是摸鱼（确信）</span>
+      </div>
+
+      <div class="avatar-upload" id="avatarUpload">
+        <span class="upload-hint" id="avatarHint">📷</span>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">昵称 <span style="font-size:12px;color:var(--text-light)">(打工代号)</span></label>
+        <input type="text" class="form-input" id="nicknameInput" placeholder="给自己起个江湖名号" maxlength="12">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">所在行业 <span style="font-size:12px;color:var(--text-light)">(选填)</span></label>
+        <input type="text" class="form-input" id="industryInput" placeholder="互联网 / 金融 / 教育..." maxlength="20">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">🧬 你的 MBTI <span style="font-size:12px;color:var(--text-light)">(不知道？选一个最像你的)</span></label>
+        <div class="mbti-group-tabs" id="mbtiGroupTabs"></div>
+        <div class="mbti-grid" id="mbtiGrid"></div>
+      </div>
+
+      <button class="btn-primary" id="setupCompleteBtn" disabled style="margin-top:20px">
+        🚀 开始充能之旅
+      </button>
+      <p style="font-size:12px;color:var(--text-light);margin-top:12px;text-align:center">
+        打工人，打工魂，今天也要元气满满！
+      </p>
     </div>
-    <script src="script.js"></script>
+
+    <!-- ===== 主页 ===== -->
+    <div class="page home-page" id="page-home">
+      <div class="top-bar">
+        <div class="logo">🔋 充能站</div>
+        <div class="avatar-mini" id="homeAvatar">🙂</div>
+      </div>
+
+      <div class="greeting-card" id="greetingCard">
+        <div class="greeting-text" id="greetingText">早安，打工人！</div>
+        <div class="greeting-sub" id="greetingSub">今天也要好好充能哦～</div>
+        <div class="greeting-emoji" id="greetingEmoji">☀️</div>
+      </div>
+
+      <div class="user-card" id="userCard">
+        <!-- JS 渲染 -->
+      </div>
+
+      <div class="fortune-preview" id="fortunePreview">
+        <!-- JS 渲染 -->
+      </div>
+
+      <div class="section-title">⚡ 今日充能菜单</div>
+      <div class="feature-grid">
+        <div class="feature-card" onclick="navigate('tarot')" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white">
+          <span class="feature-pun">塔罗打工</span>
+          <span class="feature-emoji">🃏</span>
+          <div class="feature-title">每日运势占卜</div>
+          <div class="feature-desc">抽张牌看看今天<br>宇宙怎么安排你的班</div>
+        </div>
+        <div class="feature-card" onclick="navigate('answer')" style="background:linear-gradient(135deg,#d2691e,#f4a460);color:white">
+          <span class="feature-pun">答案之叔</span>
+          <span class="feature-emoji">📖</span>
+          <div class="feature-title">答案之书</div>
+          <div class="feature-desc">有困惑？翻一翻<br>宇宙替你做决定</div>
+        </div>
+        <div class="feature-card" onclick="navigate('challenge')" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white">
+          <span class="feature-pun">旺己挑战</span>
+          <span class="feature-emoji">🎯</span>
+          <div class="feature-title">今日大挑战</div>
+          <div class="feature-desc">做一件旺自己的事<br>还能自动加到待办</div>
+        </div>
+        <div class="feature-card" onclick="navigate('daily')" style="background:linear-gradient(135deg,#e84393,#fd79a8);color:white">
+          <span class="feature-pun">每日加料</span>
+          <span class="feature-emoji">🎬</span>
+          <div class="feature-title">每日推荐</div>
+          <div class="feature-desc">一部电影或一首歌<br>给灵魂加个餐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 塔罗占卜页 ===== -->
+    <div class="page tarot-page" id="page-tarot">
+      <div class="top-bar">
+        <div class="title" onclick="navigate('home')">← 返回</div>
+        <div class="logo">🃏 塔罗占卜</div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title">塔罗占卜</div>
+        <div class="page-subtitle">心中默念你的问题，宇宙会给你指引</div>
+        <span class="page-pun">🔮 先问后抽，心诚则灵</span>
+      </div>
+
+      <div class="tarot-stage" id="tarotStage">
+        <div class="tarot-question" id="tarotQuestionArea">
+          <div class="q-label">❓ 先写下你的问题</div>
+          <input type="text" class="q-input" id="tarotQuestionInput" placeholder="比如：我该不该辞职？ TA对我是什么感觉？" maxlength="50">
+          <div class="q-hint">写完问题后，点击下方牌堆抽牌</div>
+        </div>
+        <div class="tarot-deck" id="tarotDeck">
+          <div class="tarot-card-back" id="tarotCardBack" onclick="drawTarotCard()">
+            <div class="card-back-pattern">🔮</div>
+            <div class="card-back-text">TAP TO DRAW</div>
+          </div>
+        </div>
+        <div id="tarotResult" style="display:none">
+          <!-- JS 渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 答案之书页 ===== -->
+    <div class="page answer-page" id="page-answer">
+      <div class="top-bar">
+        <div class="title" onclick="navigate('home')">← 返回</div>
+        <div class="logo">📖 答案之叔</div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title">答案之书</div>
+        <div class="page-subtitle">心里想着你的问题，翻开它</div>
+        <span class="page-pun">📚 书中自有黄金屋，也许还有答案</span>
+      </div>
+
+      <div class="answer-input-area">
+        <div class="answer-label">你的问题是？</div>
+        <input type="text" class="answer-input" id="answerInput" placeholder="比如：我该不该跳槽？" maxlength="50">
+      </div>
+
+      <div class="answer-book" id="answerBook">
+        <div class="book-cover" id="bookCover" onclick="flipBook()">
+          <div class="book-emoji">📕</div>
+          <div class="book-title">答案之书</div>
+          <div class="book-sub">点击翻阅</div>
+        </div>
+        <div class="book-page" id="bookPage">
+          <div class="page-answer" id="pageAnswer"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn-secondary" onclick="resetBook()">🔄 再问一次</button>
+      </div>
+    </div>
+
+    <!-- ===== 今日大挑战页 ===== -->
+    <div class="page challenge-page" id="page-challenge">
+      <div class="top-bar">
+        <div class="title" onclick="navigate('home')">← 返回</div>
+        <div class="logo">🎯 旺己挑战</div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title">今日大挑战</div>
+        <div class="page-subtitle">做一件旺自己的事，运气会变好（大概）</div>
+        <span class="page-pun">🍀 旺己 = 旺自己，不是网抑云</span>
+      </div>
+
+      <div class="challenge-hero" id="challengeHero">
+        <!-- JS 渲染 -->
+      </div>
+
+      <div class="todo-section">
+        <div class="todo-header">
+          <div class="todo-title">📋 今日待办</div>
+          <button class="todo-add-btn" onclick="toggleAddTodo()">+</button>
+        </div>
+        <div class="todo-add-row" id="todoAddRow">
+          <input type="text" id="todoInput" placeholder="添加待办..." maxlength="40" onkeydown="if(event.key==='Enter')addTodo()">
+          <button class="btn-secondary" style="padding:8px 16px;font-size:13px" onclick="addTodo()">添加</button>
+        </div>
+        <div id="todoList">
+          <!-- JS 渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 每日推荐页 ===== -->
+    <div class="page daily-page" id="page-daily">
+      <div class="top-bar">
+        <div class="title" onclick="navigate('home')">← 返回</div>
+        <div class="logo">🎬 每日加料</div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title">每日推荐</div>
+        <div class="page-subtitle">给灵魂加个餐，打工也要有文艺</div>
+        <span class="page-pun">🍿 加料 = 加能量，不是加班</span>
+      </div>
+
+      <div id="dailyContent">
+        <!-- JS 渲染 -->
+      </div>
+    </div>
+
+    <!-- ===== 治愈页 ===== -->
+    <div class="page heal-page" id="page-heal">
+      <div class="top-bar">
+        <div class="title" onclick="navigate('home')">← 返回</div>
+        <div class="logo">🐾 MBTI治愈</div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-title">梗图 · 小猫 · 小狗</div>
+        <div class="page-subtitle">你的MBTI专属梗图 + 超治愈猫狗文学</div>
+        <span class="page-pun">🐱🐶 摸鱼时光，适合发呆</span>
+      </div>
+
+      <div class="heal-content" id="healContent">
+        <div class="heal-card meme-section" id="healMeme">
+          <div class="heal-card-header">
+            <span class="heal-type-badge">🎭 梗图</span>
+            <button class="heal-refresh-btn" onclick="refreshHeal('meme')">🔄</button>
+          </div>
+          <div class="heal-card-body" id="healMemeBody">
+            <div class="heal-emoji-large" id="healMemeEmoji">😂</div>
+            <div class="heal-text" id="healMemeText"></div>
+            <div class="heal-mbti-tag" id="healMemeTag"></div>
+          </div>
+        </div>
+
+        <div class="heal-card pet-section" id="healPet">
+          <div class="heal-card-header">
+            <span class="heal-type-badge" id="healPetBadge">🐱 小猫文学</span>
+            <button class="heal-refresh-btn" onclick="refreshHeal('pet')">🔄</button>
+          </div>
+          <div class="heal-card-body">
+            <div class="heal-pet-emoji" id="healPetEmoji">🐱</div>
+            <div class="heal-text" id="healPetText"></div>
+            <div class="heal-pet-author" id="healPetAuthor">— 小猫文学 · 治愈版 —</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 底部导航 ===== -->
+    <div class="bottom-nav" id="bottomNav" style="display:none">
+      <div class="nav-item active" data-page="home" onclick="navigate('home')">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">首页</span>
+      </div>
+      <div class="nav-item" data-page="tarot" onclick="navigate('tarot')">
+        <span class="nav-icon">🃏</span>
+        <span class="nav-label">占卜</span>
+      </div>
+      <div class="nav-item" data-page="answer" onclick="navigate('answer')">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">答案</span>
+      </div>
+      <div class="nav-item" data-page="challenge" onclick="navigate('challenge')">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-label">挑战</span>
+      </div>
+      <div class="nav-item" data-page="daily" onclick="navigate('daily')">
+        <span class="nav-icon">🎬</span>
+        <span class="nav-label">推荐</span>
+      </div>
+      <div class="nav-item" data-page="heal" onclick="navigate('heal')">
+        <span class="nav-icon">🐾</span>
+        <span class="nav-label">治愈</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/mbti-data.js"></script>
+  <script src="js/tarot-data.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
